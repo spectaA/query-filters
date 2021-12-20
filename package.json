@@ -1,0 +1,34 @@
+{
+    "name": "query-filters",
+    "version": "1.0.0",
+    "description": "Extract, parse and convert to TypeORM find options query filters",
+    "main": "lib/index.js",
+    "scripts": {
+        "build": "tsc",
+        "test": "jest --config jestconfig.json"
+    },
+    "keywords": [
+        "nestjs",
+        "query",
+        "filters",
+        "rest",
+        "typeorm"
+    ],
+    "author": "Mathias Billot",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/jest": "^27.0.3",
+        "jest": "^27.4.5",
+        "ts-jest": "^27.1.2",
+        "typescript": "^4.5.4"
+    },
+    "files": [
+        "lib/**/*"
+    ],
+    "dependencies": {
+        "@nestjs/common": "^8.2.4",
+        "@types/lodash": "^4.14.178",
+        "lodash": "^4.17.21",
+        "typeorm": "^0.2.41"
+    }
+}
