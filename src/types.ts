@@ -1,23 +1,6 @@
-import { Equal, ILike, MoreThan, MoreThanOrEqual, LessThan, LessThanOrEqual, In, Not } from "typeorm";
-
-export const filterOperators = {
-    "$eq": Equal,
-    "$like": ILike,
-    "$gt": MoreThan,
-    "$gte": MoreThanOrEqual,
-    "$lt": LessThan,
-    "$lte": LessThanOrEqual,
-    "$in": In,
-    "$not": Not,
-}
+import { filterOperators, filterValueKeywords } from "./constants";
 
 export type FilterOperator = keyof typeof filterOperators;
-
-export const filterValueKeywords = {
-    "$null": null,
-    "$true": true,
-    "$false": false,
-}
 
 export type FilterValueKeyword = keyof typeof filterValueKeywords;
 
