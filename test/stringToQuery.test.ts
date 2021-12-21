@@ -1,6 +1,6 @@
 import { parseFromString } from "../src";
 
-describe("Parse from string", () => {
+describe("Convert query string to parsed query", () => {
 
     describe("Test rules one by one", () => {
 
@@ -92,7 +92,7 @@ describe("Parse from string", () => {
     describe("Test rules together", () => {
 
         test("Multiple rules for one key", () => {
-            const query = `banned:$eq:$false|banned:$lt:50|banned:$in:$($null,$"Yoyo")`;
+            const query = `banned:$eq:$false||banned:$lt:50||banned:$in:$($null,$"Yoyo")`;
             const parsed = parseFromString(query);
     
             expect(parsed).toMatchObject({
@@ -105,7 +105,7 @@ describe("Parse from string", () => {
         })
 
         test("Override rules for one key", () => {
-            const query = `banned:$eq:$false|banned:$eq:42`;
+            const query = `banned:$eq:$false||banned:$eq:42`;
             const parsed = parseFromString(query);
     
             expect(parsed).toMatchObject({
@@ -120,7 +120,7 @@ describe("Parse from string", () => {
     describe("Test random ideas", () => {
 
         test("Random spaces", () => {
-            const query = `key1 : $eq : 1  |    key2 :    $like : $null`;
+            const query = `key1 : $eq : 1  ||    key2 :    $like : $null`;
             const parsed = parseFromString(query);
             
             expect(parsed).toMatchObject({
@@ -149,7 +149,7 @@ describe("Parse from string", () => {
     describe("Test bad queries", () => {
 
         test("Bad rules separator", () => {
-            const query = `name:$eq:$"jon"|`;
+            const query = `name:$eq:$"jon"||`;
 
             expect(() => {
                 parseFromString(query)
@@ -189,7 +189,7 @@ describe("Parse from string", () => {
         })
 
         test("Bad value", () => {
-            const query = `key1:$eq:1|key1:$eq:badValue`;
+            const query = `key1:$eq:1||key1:$eq:badValue`;
 
             expect(() => {
                 parseFromString(query)
@@ -197,7 +197,7 @@ describe("Parse from string", () => {
         })
 
         test("Bad value", () => {
-            const query = `key1:$eq:1|key1:$eq:badValue`;
+            const query = `key1:$eq:1||key1:$eq:badValue`;
 
             expect(() => {
                 parseFromString(query)

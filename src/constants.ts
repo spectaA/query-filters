@@ -1,4 +1,4 @@
-import { Equal, ILike, MoreThan, MoreThanOrEqual, LessThan, LessThanOrEqual, In, Not } from "typeorm";
+import { Equal, ILike, In, LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Not } from "typeorm";
 
 export const filterOperators = {
     "$eq": Equal,
@@ -17,7 +17,7 @@ export const filterValueKeywords = {
     "$false": false,
 }
 
-export const RULES_SEPARATOR = "|";
+export const RULES_SEPARATOR = "||";
 export const RULES_DIVIDER = ":";
 
 export const ARRAY_START_TAG = "$(";

@@ -60,7 +60,7 @@ function parseValue(value: unknown): FilterValue | FilterValue[] {
     function parseValidArray(value: string): string[] {
         const rawArrValue = value.slice(ARRAY_START_TAG.length, -(ARRAY_END_TAG.length));
         if (!rawArrValue || !rawArrValue.length) {
-            return []
+            return [];
         }
         return rawArrValue.trim().split(ARRAY_DIVIDER).map(v => v.trim());
     }
@@ -69,16 +69,14 @@ function parseValue(value: unknown): FilterValue | FilterValue[] {
 function parseSingleValue(value: string): FilterValue {
     if (isValueKeyword(value)) {
         return getValueKeyword(value);
-
-    } else if (isValidNumber(value)) {
-        return Number(value);
-
-    } else if (isValidString(value)) {
-        return parseValidString(value);
-
-    } else {
-        throw new Error(`Invalid value: ${value}`);
     }
+    if (isValidNumber(value)) {
+        return Number(value);
+    }
+    if (isValidString(value)) {
+        return parseValidString(value);
+    }
+    throw new Error(`Invalid value: ${value}`);
 
     function isValidString(value: unknown): boolean {
         return isString(value) && value.startsWith(STRING_START_TAG) && value.endsWith(STRING_END_TAG);
