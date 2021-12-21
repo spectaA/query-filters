@@ -25,7 +25,7 @@ export function parseFromString(query: string): ParsedFilters {
     if (!query || !isString(query) || !query.length) return {};
 
     const rawRules = query.split(RULES_SEPARATOR);
-    const parsedRules = rawRules.map(rule => rule.split(RULES_DIVIDER));
+    const parsedRules = rawRules.map(rule => rule.split(RULES_DIVIDER).map(r => r.trim()));
 
     for (const rule of parsedRules) {
         const [key, operator, value] = parseRule(rule);
@@ -76,7 +76,7 @@ function parseValue(value: unknown): FilterValue | FilterValue[] {
         if (!rawArrValue || !rawArrValue.length) {
             return []
         }
-        return rawArrValue.split(ARRAY_DIVIDER);
+        return rawArrValue.split(ARRAY_DIVIDER).map(v => v.trim());
     }
 }
 
