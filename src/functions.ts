@@ -1,4 +1,4 @@
-import { isString, isNaN, values, keys } from "lodash";
+import { isString, isNaN, keys } from "lodash";
 import { FindManyOptions } from "typeorm";
 import { FilterOperator, ParsedFilters, FilterValue, FilterValueKeyword, filterValueKeywords, filterOperators } from ".";
 
@@ -25,11 +25,14 @@ export function parseFromString(query: string): ParsedFilters {
     if (!query || !isString(query) || !query.length) return {};
 
     const rawRules = query.split(RULES_SEPARATOR);
-    const parsedRules = rawRules.map(rule => rule.split(RULES_DIVIDER).map(r => r.trim()));
+    const parsedRules = rawRules.map(rule => rule.trim().split(RULES_DIVIDER).map(r => r.trim()));
 
     for (const rule of parsedRules) {
         const [key, operator, value] = parseRule(rule);
-        filters[key] = { [operator]: value };
+        filters[key] = {
+            ...filters[key],
+            [operator]: value,
+        }
     }
 
     return filters;
@@ -76,7 +79,7 @@ function parseValue(value: unknown): FilterValue | FilterValue[] {
         if (!rawArrValue || !rawArrValue.length) {
             return []
         }
-        return rawArrValue.split(ARRAY_DIVIDER).map(v => v.trim());
+        return rawArrValue.trim().split(ARRAY_DIVIDER).map(v => v.trim());
     }
 }
 
