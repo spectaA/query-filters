@@ -1,26 +1,25 @@
-export enum FilterOperator {
-    EQ = "$eq",
-    LIKE = "$like",
-    GT = "$gt",
-    GTE = "$gte",
-    IN = "$in",
-    LT = "$lt",
-    LTE = "$lte",
-    NOT = "$not",
+import { Equal, ILike, MoreThan, MoreThanOrEqual, LessThan, LessThanOrEqual, In, Not } from "typeorm";
+
+export const filterOperators = {
+    "$eq": Equal,
+    "$like": ILike,
+    "$gt": MoreThan,
+    "$gte": MoreThanOrEqual,
+    "$lt": LessThan,
+    "$lte": LessThanOrEqual,
+    "$in": In,
+    "$not": Not,
 }
 
-export enum FilterValueType {
-    STRING = "string",
-    NUMBER = "number",
-    BOOLEAN = "boolean",
-    NULL = "null",
+export type FilterOperator = keyof typeof filterOperators;
+
+export const filterValueKeywords = {
+    "$null": null,
+    "$true": true,
+    "$false": false,
 }
 
-export enum FilterValueKeyword {
-    NULL = "$null",
-    TRUE = "$true",
-    FALSE = "$false",
-}
+export type FilterValueKeyword = keyof typeof filterValueKeywords;
 
 export type FilterValue = string | boolean | number | null;
 

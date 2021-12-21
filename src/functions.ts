@@ -1,6 +1,19 @@
-import { isString, isNaN } from "lodash";
+import { isString, isNaN, values, keys } from "lodash";
 import { FindManyOptions } from "typeorm";
-import { FilterOperator, ParsedFilters, FilterValue, FilterValueKeyword, FilterValueType } from ".";
+import { FilterOperator, ParsedFilters, FilterValue, FilterValueKeyword, filterValueKeywords, filterOperators } from ".";
+
+// Constants
+const RULES_SEPARATOR = "|";
+const RULES_DIVIDER = ":";
+
+const ARRAY_START_TAG = "$(";
+const ARRAY_END_TAG = ")";
+const ARRAY_DIVIDER = ",";
+
+const STRING_START_TAG = "$\"";
+const STRING_END_TAG = "\"";
+
+// Functions
 
 export function convertToFindOptions(filters: ParsedFilters): FindManyOptions {
     throw new Error();
@@ -9,14 +22,14 @@ export function convertToFindOptions(filters: ParsedFilters): FindManyOptions {
 export function parseFromString(query: string): ParsedFilters {
     let filters: ParsedFilters = {};
 
-    const rawRules = query.split("|");
-    const parsedRules = rawRules.map(rule => rule.split(":"));
+    if (!query || !isString(query) || !query.length) return {};
+
+    const rawRules = query.split(RULES_SEPARATOR);
+    const parsedRules = rawRules.map(rule => rule.split(RULES_DIVIDER));
 
     for (const rule of parsedRules) {
-        try {
-            const [key, operator, value] = parseRule(rule);
-            filters[key] = { [operator]: value };
-        } catch (err) { };
+        const [key, operator, value] = parseRule(rule);
+        filters[key] = { [operator]: value };
     }
 
     return filters;
@@ -26,44 +39,82 @@ export function parseFromString(query: string): ParsedFilters {
 
 function parseRule(rule: string[]): [string, FilterOperator, FilterValue | FilterValue[]] {
     if (!(Array.isArray(rule) && rule.length === 3)) throw new Error(`Invalid rule: ${rule}`);
+
     // Key
-    const rawKey: string = rule[0];
-    if (!isString(rawKey)) throw new Error(`Invalid key: ${rawKey}`);
+    const key: unknown = rule[0];
+    if (!key || !isString(key)) throw new Error(`Invalid key: ${key}`);
 
     // Operator
-    const rawOperator: string = rule[1];
-    if (!rawOperator) throw new Error(`Invalid operator: ${rawOperator}`);
-    const operator: FilterOperator = FilterOperator.EQ;
+    const operator: unknown = rule[1];
+    if (!operator || !isOperator(operator)) throw new Error(`Invalid operator: ${operator}`);
 
     // Value
-    const rawValue: string = rule[2];
-    const value: FilterValue | FilterValue[] = parseValue(rawValue);
+    const rawValue: unknown = rule[2];
+    const value = parseValue(rawValue);
 
     // Return
-    return [rawKey, operator, value];
+    return [key, operator, value];
 }
 
-function parseValue(value: string): FilterValue | FilterValue[] {
-    if (!value) throw new Error(`Invalid value: ${value}`);
-    if (value.charAt(0) === "(" && value.charAt(-1) === ")") {
-        const rawArrValue = value.slice(1, -1);
-        const rawValues = rawArrValue.split(",");
+function parseValue(value: unknown): FilterValue | FilterValue[] {
+    if (!value || !isString(value)) throw new Error(`Invalid value: ${value}`);
+
+    if (isValidArray(value)) {
+        const rawValues = parseValidArray(value);
         return rawValues.map(v => parseSingleValue(v));
+
     } else {
         return parseSingleValue(value);
+    }
+
+    function isValidArray(value: unknown): boolean {
+        return isString(value) && value.startsWith(ARRAY_START_TAG) && value.endsWith(ARRAY_END_TAG);
+    }
+
+    function parseValidArray(value: string): string[] {
+        const rawArrValue = value.slice(ARRAY_START_TAG.length, -(ARRAY_END_TAG.length));
+        if (!rawArrValue || !rawArrValue.length) {
+            return []
+        }
+        return rawArrValue.split(ARRAY_DIVIDER);
     }
 }
 
 function parseSingleValue(value: string): FilterValue {
-    if (value === "$null") {
-        return null;
-    } else if (value === "$true") {
-        return true;
-    } else if (value === "$false") {
-        return false;
-    } else if (!isNaN(value)) {
+    if (isValueKeyword(value)) {
+        return getValueKeyword(value);
+
+    } else if (isValidNumber(value)) {
         return Number(value);
+
+    } else if (isValidString(value)) {
+        return parseValidString(value);
+
     } else {
-        return value;
+        throw new Error(`Invalid value: ${value}`);
     }
+
+    function isValidString(value: unknown): boolean {
+        return isString(value) && value.startsWith(STRING_START_TAG) && value.endsWith(STRING_END_TAG);
+    }
+
+    function parseValidString(value: string): string {
+        return value.slice(STRING_START_TAG.length, -(STRING_END_TAG.length));
+    }
+}
+
+function isOperator(value: unknown): value is FilterOperator {
+    return keys(filterOperators).includes(value as any);
+}
+
+function isValueKeyword(value: unknown): value is FilterValueKeyword {
+    return keys(filterValueKeywords).includes(value as any);
+}
+
+function getValueKeyword(value: FilterValueKeyword): FilterValue {
+    return filterValueKeywords[value];
+}
+
+function isValidNumber(value: unknown): boolean {
+    return !isNaN(parseInt(value as any));
 }

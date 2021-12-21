@@ -1,7 +1,7 @@
 {
     "name": "query-filters",
     "version": "1.0.0",
-    "description": "Extract, parse and convert to TypeORM find options query filters",
+    "description": "Parse, extract and convert to ORM's options your query filters. Made for easy communication between client and server",
     "main": "lib/index.js",
     "scripts": {
         "build": "tsc",
@@ -15,7 +15,7 @@
         "typeorm"
     ],
     "author": "Mathias Billot",
-    "license": "ISC",
+    "license": "",
     "devDependencies": {
         "@types/jest": "^27.0.3",
         "jest": "^27.4.5",
