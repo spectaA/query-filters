@@ -20,58 +20,72 @@ npm run test
 
 ## Usage
 
-### General structure of stingified query filter
+### 1) Encode (E.g: client-side)
 
-```
-https://my-api.com/users?filters=name:$eq:$"Jon"|age:$lt:65|age:$gte:18|role:$in:$($"admin",$null)|banned:$not:$true
-```
-
-Using `parseFromString(req.query.filters)`, query will be parsed to:
+Using `stringifyParsedFilters` with a valid filter object
 
 ```js
-{
+let queryString = stringifyParsedFilters({
     "name": {
-        "$eq": "Jon"
+        "$eq": "Jon",
+    },
+    "lastname": {
+        "$like": "doe"
     },
     "age": {
-        "$lt": 65,
-        "$gte": 18
+        "$gte": 18,
+        "$lt": 65.5
     },
     "role": {
-        "$in": [ "admin", null ]
+        "$in": [ "user", null, "%|@?&&__?./::|@#¼½^{[}] " ],
     },
     "banned": {
         "$not": true
     }
-}
+})
 ```
 
-### Rules
-
-- Rules are delimited by "`|`"
-- Each rule contains three parts divided by "`:`"
-- Three parts are `key`:`operator`:`value`
-
-Note: avoid use spaces inside rules. They may cause parsing errors.
-
-***
-
-### Key part
-
-- The first rule block contains the property wanted
-- No check / test is done and property is used "as it is"
+This object will be stringified as this:
 
 ```
-name:$eq:$"Jon"|age:$lt:65|age:$gte:18|role:$in:$($"admin",$null)|banned:$not:$true
+name[$eq]=%40Jon&lastname[$like]=%40doe&age[$gte]=18&age[$lt]=65.5&role[$in][0]=%40user&role[$in][1]&role[$in][2]=%40%25%7C%40%3F%26%26__%20Test%20%3F.%2F%3A%3A%7C%40%23%C2%BC%C2%BD%5E%7B%5B%7B%7D%20&banned[$not]=true
 ```
 
-In this example, proeprties are:
-- name
-- age (twice)
-- role
-- banned
+If it's needed, it's fairly human readable:
+```
+name [$eq] = %40Jon
+& lastname [$like] = %40doe
+& age [$gte] = 18
+& age [$lt] = 65.5
+& role [$in] [0] = %40user
+& role [$in] [1]
+& role [$in] [2] = %40%25%7C%40%3F%26%26__%20Test%20%3F.%2F%3A%3A%7C%40%23%C2%BC%C2%BD%5E%7B%5B%7B%7D%20
+& banned[$not]=true
+```
 
-### Operator part
+__> Only values are encoded ! Keys and operatos stay as is__
+
+| Type | Raw | Encoded | Rule |
+|- |- |- |- |
+| Booleans | `true`, `false` | `true`, `false` | As is
+| Nulls | `null` | `null` | As is
+| Numbers | `10`, `42.42`, `Infinity`, ... | `10`, `42.42`, `Infinity`, ... | As is
+| Strings | `Hello World!` | `%40Hello%20World%21` | Encoded with and prefixed with an encoded `@` (`%40`)
+
+> Why do strings are prefixed with an `@`?
+
+Prefix strings prevents keyword like or number like string to be badly parsed:
+
+| Type check with prefix | | |
+|- |- |- |
+| Number <br> String | `10` <br> `"%4010"` | `10` <br> `"10"`
+| Boolean <br> String | `true` <br> `"%40true"` | `true` <br> `"true"`
+
+### 2) Decode (E.g: server-side)
+
+Decode the transmitted query string using `parseQueryString(req.query.filters)`, query will be parsed back to the [original object](#1-encode-eg-client-side)
+
+### Operators
 
 | Allowed operators |||
 |-|-|-
@@ -84,15 +98,6 @@ In this example, proeprties are:
 |`$not` | different from | `!=`
 |`$like` | is like | `ILIKE` as in SQL
 
-### Value part
-
-| Values types |||
-|- |- |-
-| String | `$"MY-STRING"` | Must be between the start tag `$"` and the end tag `"`
-| Number | `50`, `-4`, `3.14` | Must be a parsable number
-| Boolean | `$true` or `$false` | Special keywords: must start with `$` (case sensitive)
-| Null | `$null` | Special keyword: must start with `$` (case sensitive)
-| Arrays | `$(VALUE1,VALUE2,...)` | Arrays are specified by the start tag `$(` and the end tag `)`. Each value must me a valid [value](#value-part). Values are divied by a `,`
 
 ***
 
