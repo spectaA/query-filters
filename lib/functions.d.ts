@@ -1,3 +1,3 @@
-export * from "./functions/stringToQuery";
-export * from "./functions/queryToString";
-export * from "./functions/queryToFindOptions";
+export * from "./functions/parseQueryString";
+export * from "./functions/stringifyParsedFilters";
+export * from "./functions/validateParsedFilters";

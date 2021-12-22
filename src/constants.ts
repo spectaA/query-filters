@@ -1,4 +1,5 @@
 import { Equal, ILike, In, LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Not } from "typeorm";
+import { ParseQueryStringOptions } from ".";
 
 export const filterOperators = {
     "$eq": Equal,
@@ -12,17 +13,11 @@ export const filterOperators = {
 }
 
 export const filterValueKeywords = {
-    "$null": null,
-    "$true": true,
-    "$false": false,
+    "true": true,
+    "false": false,
+    "null": null,
 }
 
-export const RULES_SEPARATOR = "||";
-export const RULES_DIVIDER = ":";
-
-export const ARRAY_START_TAG = "$(";
-export const ARRAY_END_TAG = ")";
-export const ARRAY_DIVIDER = ",";
-
-export const STRING_START_TAG = "$\"";
-export const STRING_END_TAG = "\"";
+export const defaultParseQueryStringOptions: ParseQueryStringOptions = {
+    rejectOnError: true
+}

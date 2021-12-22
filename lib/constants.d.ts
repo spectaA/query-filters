@@ -1,4 +1,5 @@
 import { Equal, ILike, In, LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Not } from "typeorm";
+import { ParseQueryStringOptions } from ".";
 export declare const filterOperators: {
     $eq: typeof Equal;
     $like: typeof ILike;
@@ -10,14 +11,8 @@ export declare const filterOperators: {
     $not: typeof Not;
 };
 export declare const filterValueKeywords: {
-    $null: null;
-    $true: boolean;
-    $false: boolean;
+    true: boolean;
+    false: boolean;
+    null: null;
 };
-export declare const RULES_SEPARATOR = "||";
-export declare const RULES_DIVIDER = ":";
-export declare const ARRAY_START_TAG = "$(";
-export declare const ARRAY_END_TAG = ")";
-export declare const ARRAY_DIVIDER = ",";
-export declare const STRING_START_TAG = "$\"";
-export declare const STRING_END_TAG = "\"";
+export declare const defaultParseQueryStringOptions: ParseQueryStringOptions;
